@@ -10,6 +10,7 @@ import {
   Card,
   CardBody,
   CardTitle,
+
   Table
 } from 'reactstrap'
 
@@ -32,9 +33,12 @@ function AppNav() {
 
 class SchemaTable extends Component {
   render() {
+    console.log(this)
+
     const { columns, title } = this.props
 
     const columnHeaderCells = []
+
     for (let i = 0; columns.length > i; ++i) {
       const column = columns[i]
 
@@ -72,7 +76,8 @@ class App extends Component {
       console.log(json)
 
       this.setState({
-        tables: json
+        tables: json,
+        isFetched: true
       })
 
     } catch (error) {
@@ -87,10 +92,12 @@ class App extends Component {
     for (let i = 0; tables.length > i; ++i) {
       const table = tables[i]
 
+      console.log({table})
+
       tablesCards.push(
         <SchemaTable
           columns={table.columns}
-          title={table.title}
+          title={table.table}
         />
       )
     }
@@ -98,7 +105,7 @@ class App extends Component {
     return (
       <>
         <AppNav/>
-        {isFetched ? <SchemaTable/> : null}
+        {isFetched ? tablesCards : null}
       </>
     )
   }
