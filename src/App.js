@@ -32,18 +32,58 @@ function AppNav() {
 
 
 class SchemaTable extends Component {
-  render() {
-    console.log(this)
+  state = {
+    isFetched: false,
+    rows: []
+  }
 
+  async componentDidMount() {
+    const { id } = this.props
+
+    try {
+      const response = await fetch(`https://interview.torodata.io/metrics/${id}`)
+      const json = await response.json()
+
+      console.log(json)
+
+      this.setState({
+        isFetched: true,
+        rows: json
+      })
+
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  render() {
     const { columns, title } = this.props
+    const { rows } = this.state
 
     const columnHeaderCells = []
-
     for (let i = 0; columns.length > i; ++i) {
       const column = columns[i]
 
       columnHeaderCells.push(
-        <th>{column.title}</th>
+        <th key={i}>{column.name}</th>
+      )
+    }
+
+    const rowCells = []
+    for (let r = 0; rows.length > r; ++r) {
+      const row = rows[r]
+
+      console.log({ row })
+
+      const { id, metric, column, currentValue } = row
+
+      rowCells.push(
+        <tr>
+          <td>{id}</td>
+          <td>{metric}</td>
+          <td>{column}</td>
+          <td>{currentValue}</td>
+        </tr>
       )
     }
 
@@ -53,8 +93,13 @@ class SchemaTable extends Component {
           <CardTitle>{title}</CardTitle>
           <Table>
             <thead>
-              {columnHeaderCells}
+              <tr>
+                {columnHeaderCells}
+              </tr>
             </thead>
+            <tbody>
+              {rowCells}
+            </tbody>
           </Table>
         </CardBody>
       </Card>
@@ -92,10 +137,10 @@ class App extends Component {
     for (let i = 0; tables.length > i; ++i) {
       const table = tables[i]
 
-      console.log({table})
-
       tablesCards.push(
         <SchemaTable
+          key={i}
+          id={table.id}
           columns={table.columns}
           title={table.table}
         />
